@@ -8,14 +8,32 @@ inline bool obstacle();
 inline bool malfunction();
 
 void main() {
+    char deliveryloc;
+    float battery = 100;
+    int weather;
     srand(time(0));
 
     startingmsg();
 
-    std::cout << "---Delivery to location A---\n";
+    for (int i = 0; i < 3; i++) {
+        std::cout << "Enter Delivery Location( A,B,C ) : ";
+        std::cin >> deliveryloc;
+        weather = weathergen();
+        if (weather == 1 && battery >= 30) {
+            std::cout << "Order Completed" << std::endl;
+        }
+        else if (weather == 2 || weather == 3) {
+            std::cout << "Weather insufficent. Try again later.";
+            break;
+        }
+        else if (battery < 30) {
+            std::cout << "Low battery. Recharge.";
+            break;
+        }
 
 
 
+    }
 }
 
 inline void startingmsg() {
@@ -25,7 +43,7 @@ inline void startingmsg() {
 }
 
 inline int weathergen() {
-    return rand() % 6 + 1;
+    return rand() % 3 + 1;
 }
 
 inline bool obstacle() {
