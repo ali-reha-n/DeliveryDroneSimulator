@@ -35,7 +35,7 @@ void main() {
         rechargebattery(battery, hours, minutes);
     }
 
-    if (hours >= 18 && minutes >= 0) {
+    if (hours >= 18 ) {
         std::cout << "Drone charging time approaching......." << std::endl;
         std::cout << "Terminating all operations. " << std::endl;
     }
@@ -115,27 +115,59 @@ void delivery(float& battery, int& hours, int& minutes , std::string loc) {
     bool obstacle= isobstacle();
     int weather = weathergen(); // 1 = sunny , 2 = windy , 3 = rainy
 
-    if (weather == 2 && battery < 40) {
-        do {
-            std::cout << "Battery Low.\nCurrent Battery:" << battery << "\nReacharging.....\n";
-            addminutes(hours, minutes, 30);
-        } while (battery < 40);
-        std::cout << "Battery charged to sufficent level. Taking off and delivering....";
+    if (weather == 1) {
+        std::cout << "Weather: Sunny" << std::endl;
+    }
+    else if (weather == 2) {
+        std::cout << "Weather: Windy\n";
+        if (battery < 40) {
+            do {
+                if (hours >= 18 && minutes >= 0) {
+                    return;
+                }
+                std::cout << "Battery Low.\nCurrent Battery:" << battery << "\nReacharging.....\n";
+                addminutes(hours, minutes, 30);
+                if (battery + 10 >= 100) {
+                    battery = 100;
+                }
+                else {
+                    battery += 10;
+                }
+            } while (battery < 40);
+            std::cout << "Battery charged to sufficent level.\n";
+            std::cout << "Battery: " << battery << "%\n";
+            std::cout << "Delivering......\n";
+        }
+        battery -= 5;
+        addminutes(hours, minutes, 10);
     }
     else if (weather == 3) {
         do {
-            std::cout << "Rainy Weather.\nDelivery Delayed.\nWaiting for 1 hour.....\n";
+            if (hours >= 18 && minutes >= 0) {
+                return;
+            }
+            std::cout << "Weather:Rainy\nDelivery Delayed.\nWaiting for 1 hour and recharging.....\n";
             addminutes(hours, minutes, 60);
+            if (battery + 20 >= 100) {
+                battery = 100;
+            }
+            else {
+                battery += 20;
+            }
             weather = weathergen();
         } while (weather == 3);
         std::cout << "Weather clear. Taking off and delivering........\n";
     }
+    std::cout << "Battery: " << battery << "%" << std::endl;
+    std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
 
     if (obstacle) {
         std::cout << "Obstacle Detected. Rerouting.....\n";
         battery -= 10;
         addminutes(hours, minutes, 5);
     }
+    std::cout << "Battery: " << battery << "%" << std::endl;
+    std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
 
     if (loc == "C1") {
         battery -= 10;
@@ -151,6 +183,6 @@ void delivery(float& battery, int& hours, int& minutes , std::string loc) {
     }
 
     std::cout << "Delivery Successfull.\n";
-    std::cout << "Battery Level:" << battery << std::endl;
+    std::cout << "Battery: " << battery << "%" << std::endl;
     std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
 }
