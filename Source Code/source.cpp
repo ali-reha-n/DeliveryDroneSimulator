@@ -12,21 +12,23 @@ inline void rechargebattery(float& battery, int& hours, int& minutes);
 void takeload(double& load);
 void taketime(int& hours, int& minutes);
 void takeloc(std::string& deliveryloc);
-void delivery(float &battery, int &hours,int &minutes , std::string loc , double load);
+void delivery(float &battery, int &hours,int &minutes , std::string loc , double load , float & battcon , int& deliveries);
 
 void main() {
     std::string  deliveryloc;
-    float battery = 100;
+    float battery = 100 , battcon=0;
     double load;
-    int weather , hours=0 , minutes=0;
+    int weather , hours=0 , minutes=0 , deliveries=0;
     srand(time(0));
 
     startingmsg();
-
     taketime( hours , minutes );
 
     while( hours < 18 ) {
-        
+        for (int i = 0; i <= 60; i++) {
+            std::cout << "-";
+        }
+        std::cout << std::endl;
         takeloc(deliveryloc);
         if (deliveryloc == "null") {
             std::cout << "Shutting down all operations for the day.....\n";
@@ -34,8 +36,7 @@ void main() {
         }
 
         takeload(load);
-
-        delivery(battery, hours, minutes, deliveryloc);
+        delivery(battery, hours, minutes, deliveryloc , load, battcon,deliveries);
         rechargebattery(battery, hours, minutes);
     }
 
@@ -44,13 +45,19 @@ void main() {
         std::cout << "Terminating all operations. " << std::endl;
     }
 
+    std::cout << "\n\nDay Summary: \n";
+    std::cout << "Deliveries:" << deliveries << std::endl;
+    std::cout << "Battery Consumed: " << battcon << std::endl;
+    std::cout << "Battery per Delivery: " << battcon / (float)deliveries << std::endl;
+
+
     std::cout << "Thanks for using. See you tomorrow - or not.";
 }
 
 inline void startingmsg() {
     std::cout << "---------------Delivery Drone---------------" << std::endl;
     std::cout << "-----An Initiative by IESE to deliver environmentally friendly utensils to the cafes.-----" << std::endl;
-    std::cout << "Good Morning!" << std::endl;
+    std::cout << "Enter 'null' in location to end the day." << std::endl;
     std::cout << "Let's start the day. \n\n" << std::endl;
 }
 
@@ -97,7 +104,7 @@ void takeload(double& load) {
         if (load <= 0 || load > 15) {
             std::cout << "Invalid load value entered. Enter again...." << std::endl;
         }
-    }while (load<=0 || load >15)
+    } while (load <= 0 || load > 15);
 }
 
 void taketime(int& hours, int& minutes) {
@@ -125,7 +132,7 @@ void takeloc(std::string& deliveryloc) {
     } while (deliveryloc != "C1" && deliveryloc != "C2" && deliveryloc != "C3" && deliveryloc != "null");
 }
 
-void delivery(float& battery, int& hours, int& minutes , std::string loc , double load) {
+void delivery(float& battery, int& hours, int& minutes , std::string loc , double load , float& battcon, int&deliveries) {
     bool obstacle= isobstacle();
     int weather = weathergen(); // 1 = sunny , 2 = windy , 3 = rainy
 
@@ -153,6 +160,7 @@ void delivery(float& battery, int& hours, int& minutes , std::string loc , doubl
             std::cout << "Delivering......\n";
         }
         battery -= 5;
+        battcon += 5;
         addminutes(hours, minutes, 10);
     }
     else if (weather == 3) {
@@ -178,34 +186,41 @@ void delivery(float& battery, int& hours, int& minutes , std::string loc , doubl
     if (load > 10) {
         std::cout << "Heavy load. Will cost more time and battery.\n";
         battery -= 5;
+        battcon += 5;
         addminutes(hours, minutes, 10);
+        std::cout << "Battery: " << battery << "%" << std::endl;
+        std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
     }
-    std::cout << "Battery: " << battery << "%" << std::endl;
-    std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
 
 
     if (obstacle) {
         std::cout << "Obstacle Detected. Rerouting.....\n";
         battery -= 10;
+        battcon += 10;
         addminutes(hours, minutes, 5);
-    }
-    std::cout << "Battery: " << battery << "%" << std::endl;
-    std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
+        std::cout << "Battery: " << battery << "%" << std::endl;
+        std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
 
+    }
+    
     if (loc == "C1") {
         battery -= 10;
+        battcon += 10;
         addminutes(hours, minutes, 15);
     }
     else if (loc == "C2") {
         battery -= 20;
+        battcon += 20;
         addminutes(hours, minutes, 25);
     }
     else if (loc == "C3") {
         battery -= 25;
+        battcon += 25;
         addminutes(hours, minutes, 45);
     }
 
     std::cout << "Delivery Successfull.\n";
     std::cout << "Battery: " << battery << "%" << std::endl;
     std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
+    deliveries++;
 }
