@@ -9,13 +9,15 @@ inline bool malfunction();
 inline void addminutes(int& hours, int& minutes , int add);
 inline void rechargebattery(float& battery, int& hours, int& minutes);
 
+void takeload(double& load);
 void taketime(int& hours, int& minutes);
 void takeloc(std::string& deliveryloc);
-void delivery(float &battery, int &hours,int &minutes , std::string loc );
+void delivery(float &battery, int &hours,int &minutes , std::string loc , double load);
 
 void main() {
     std::string  deliveryloc;
     float battery = 100;
+    double load;
     int weather , hours=0 , minutes=0;
     srand(time(0));
 
@@ -30,6 +32,8 @@ void main() {
             std::cout << "Shutting down all operations for the day.....\n";
             break;
         }
+
+        takeload(load);
 
         delivery(battery, hours, minutes, deliveryloc);
         rechargebattery(battery, hours, minutes);
@@ -86,6 +90,16 @@ inline void rechargebattery(float& battery, int& hours, int& minutes) {
     }
 }
 
+void takeload(double& load) {
+    do {
+        std::cout << "Enter the load (kg)(Greater than 0 and not exceeding 15):";
+        std::cin >> load;
+        if (load <= 0 || load > 15) {
+            std::cout << "Invalid load value entered. Enter again...." << std::endl;
+        }
+    }while (load<=0 || load >15)
+}
+
 void taketime(int& hours, int& minutes) {
     do {
         std::cout << "Enter the time in 24 hours format.\n" << std::endl;
@@ -111,7 +125,7 @@ void takeloc(std::string& deliveryloc) {
     } while (deliveryloc != "C1" && deliveryloc != "C2" && deliveryloc != "C3" && deliveryloc != "null");
 }
 
-void delivery(float& battery, int& hours, int& minutes , std::string loc) {
+void delivery(float& battery, int& hours, int& minutes , std::string loc , double load) {
     bool obstacle= isobstacle();
     int weather = weathergen(); // 1 = sunny , 2 = windy , 3 = rainy
 
@@ -160,6 +174,15 @@ void delivery(float& battery, int& hours, int& minutes , std::string loc) {
     }
     std::cout << "Battery: " << battery << "%" << std::endl;
     std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
+
+    if (load > 10) {
+        std::cout << "Heavy load. Will cost more time and battery.\n";
+        battery -= 5;
+        addminutes(hours, minutes, 10);
+    }
+    std::cout << "Battery: " << battery << "%" << std::endl;
+    std::cout << "Time: " << hours << ":" << minutes << "\n" << std::endl;
+
 
     if (obstacle) {
         std::cout << "Obstacle Detected. Rerouting.....\n";
