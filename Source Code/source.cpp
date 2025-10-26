@@ -6,9 +6,10 @@ inline void startingmsg();
 inline int weathergen();
 inline bool isobstacle();
 inline bool malfunction();
-inline void taketime( int &hours , int &minutes );
 inline void addminutes(int& hours, int& minutes , int add);
+inline void rechargebattery(float& battery, int& hours, int& minutes);
 
+void taketime(int& hours, int& minutes);
 void takeloc(std::string& deliveryloc);
 void delivery(float &battery, int &hours,int &minutes , std::string loc );
 
@@ -22,7 +23,7 @@ void main() {
 
     taketime( hours , minutes );
 
-    for (int i = 0; i < 3; i++) {
+    while( hours < 18 ) {
         
         takeloc(deliveryloc);
         if (deliveryloc == "null") {
@@ -31,11 +32,12 @@ void main() {
         }
 
         delivery(battery, hours, minutes, deliveryloc);
-        if (hours >= 18 && minutes >= 0) {
-            std::cout << "Drone charging time approaching......." << std::endl;
-            std::cout << "Terminating all operations. " << std::endl;
-            break;
-        }
+        rechargebattery(battery, hours, minutes);
+    }
+
+    if (hours >= 18 && minutes >= 0) {
+        std::cout << "Drone charging time approaching......." << std::endl;
+        std::cout << "Terminating all operations. " << std::endl;
     }
 
     std::cout << "Thanks for using. See you tomorrow - or not.";
@@ -63,25 +65,38 @@ inline bool malfunction() {
     return 0;
 }
 
-void taketime(int & hours, int& minutes) {
-    do {
-        std::cout << "Enter the time in 24 hours format.\n" << std::endl;
-
-        std::cout << "Hours:";
-        std::cin >> hours;
-        
-        std::cout << "Minutes:";
-        std::cin >> minutes;
-    
-    } while (hours < 0 || hours > 24 || minutes < 0 || minutes >= 60);
-}
-
-void addminutes(int& hours, int& minutes , int add) {
+inline void addminutes(int& hours, int& minutes , int add) {
     minutes = minutes + add;
     if (minutes >= 60) {
         minutes = minutes % 60;
         hours++;
     }
+}
+
+inline void rechargebattery(float& battery, int& hours, int& minutes) {
+    while (battery < 30) {
+        std::cout << "Low Battery.Recharging.....\n";
+        battery += 5;
+        addminutes(hours, minutes, 15);
+        std::cout << "Battery: " << battery << "%" << std::endl;
+        std::cout << "Time: " << hours << ":" << minutes << std::endl;
+        if (hours >= 18 && minutes >= 0) {
+            return;
+        }
+    }
+}
+
+void taketime(int& hours, int& minutes) {
+    do {
+        std::cout << "Enter the time in 24 hours format.\n" << std::endl;
+
+        std::cout << "Hours:";
+        std::cin >> hours;
+
+        std::cout << "Minutes:";
+        std::cin >> minutes;
+
+    } while (hours < 0 || hours > 24 || minutes < 0 || minutes >= 60);
 }
 
 void takeloc(std::string& deliveryloc) {
