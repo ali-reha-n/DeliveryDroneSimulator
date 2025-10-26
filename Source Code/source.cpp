@@ -9,6 +9,7 @@ inline bool malfunction();
 inline void taketime( int &hours , int &minutes );
 inline void addminutes(int& hours, int& minutes , int add);
 
+void takeloc(std::string& deliveryloc);
 void delivery(float &battery, int &hours,int &minutes , std::string loc );
 
 void main() {
@@ -22,8 +23,12 @@ void main() {
     taketime( hours , minutes );
 
     for (int i = 0; i < 3; i++) {
-        std::cout << "Enter Delivery Location( C1 , C2 , C3 ) : ";
-        std::cin >> deliveryloc;
+        
+        takeloc(deliveryloc);
+        if (deliveryloc == "null") {
+            std::cout << "Shutting down all operations for the day.....\n";
+            break;
+        }
 
         delivery(battery, hours, minutes, deliveryloc);
         if (hours >= 18 && minutes >= 0) {
@@ -77,6 +82,18 @@ void addminutes(int& hours, int& minutes , int add) {
         minutes = minutes % 60;
         hours++;
     }
+}
+
+void takeloc(std::string& deliveryloc) {
+    do {
+        std::cout << "Enter the delivery location (C1,C2,C3): ";
+        std::cin >> deliveryloc;
+
+        if (deliveryloc != "C1" && deliveryloc != "C2" && deliveryloc != "C3" && deliveryloc != "null") {
+            std::cout << "Invalid location. Enter again....\n";
+        }
+
+    } while (deliveryloc != "C1" && deliveryloc != "C2" && deliveryloc != "C3" && deliveryloc != "null");
 }
 
 void delivery(float& battery, int& hours, int& minutes , std::string loc) {
